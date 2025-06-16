@@ -1,26 +1,19 @@
-import logging
-import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram_dialog import setup_dialogs
 from fluentogram import TranslatorHub
+import structlog
 
 from bot.handling.handlers import start_router
 from bot.handling.dialogs import first_start_dialog, create_task_dialog
 from I18N import i18n_factory
 from bot.handling.middlewares import TranslatorRunnerMiddleware
+from config import Config
 
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="[{asctime}] #{levelname:8} {filename}:{lineno} - {name} - {message}",
-    style="{",
-)
-
-logger = logging.getLogger(__name__)
-
-
-async def main():
-    bot = Bot(token="8012464002:AAFFN0TGnDYtrPBm1NWDs7MIvLTEkwPD8dA")
+async def main(config: Config):
+    log = structlog.get_logger(__name__)
+    log.info("INFO")
+    bot = Bot(token=config.token.get_secret_value())
     dp = Dispatcher()
 
     dp.include_routers(start_router, first_start_dialog, create_task_dialog)
