@@ -1,12 +1,13 @@
 from pydantic import BaseModel, PostgresDsn
 from dynaconf import Dynaconf
 
-from bot.config import BotConfig
-from logs.config import LogsConfig
+from logs import LogsConfig
+from database import DbConfig
+from pydantic import SecretStr
 
 
-class DbConfig(BaseModel):
-    dsn: PostgresDsn
+class BotConfig(BaseModel):
+    token: SecretStr
 
 
 class Config(BaseModel):
