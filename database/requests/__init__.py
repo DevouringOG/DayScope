@@ -1,4 +1,4 @@
-from .requests import upsert_user
+from .requests import add_user
 
 
-__all__ = ["upsert_user"]
+__all__ = ["add_user"]

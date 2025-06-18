@@ -3,8 +3,5 @@
 venv/
 .venv/
 
-/nats/data/
 .DS_Store/
 __pycache__/
-
-/nats/data/

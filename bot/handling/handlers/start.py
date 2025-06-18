@@ -6,7 +6,7 @@ from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.handling.states import StartSG
-from database.requests import upsert_user
+from database.requests import add_user
 
 
 start_router = Router()
@@ -14,10 +14,9 @@ start_router = Router()
 
 @start_router.message(CommandStart())
 async def start(msg: Message, dialog_manager: DialogManager, session: AsyncSession):
-    await upsert_user(
+    await add_user(
         session=session,
         telegram_id=msg.from_user.id,
-        first_name=msg.from_user.first_name,
-        last_name=msg.from_user.last_name,
+        lang=msg.from_user.language_code,
     )
     await dialog_manager.start(state=StartSG.start, mode=StartMode.RESET_STACK)
