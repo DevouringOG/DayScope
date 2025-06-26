@@ -1,8 +1,11 @@
 .env
 .secrets.toml
-venv/
-.venv/
 
-.DS_Store/
-.redis/
+.postgres_data/
+.redis_data/
+
 __pycache__/
+*.pyc
+*.pyo
+
+.vscode/

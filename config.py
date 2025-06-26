@@ -1,19 +1,30 @@
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel, SecretStr, PostgresDsn, RedisDsn
 from dynaconf import Dynaconf
-
-from logs import LogsConfig
-from database import DbConfig
-from pydantic import SecretStr
+from typing import Literal
 
 
 class BotConfig(BaseModel):
     token: SecretStr
 
 
+class LogsConfig(BaseModel):
+    level: Literal["CRITICAL", "FATAL", "ERROR", "WARNING", "INFO", "DEBUG"] = "INFO"
+    time_format: str = "utc"
+
+
+class DbConfig(BaseModel):
+    dsn: PostgresDsn
+
+
+class RedisConfig(BaseModel):
+    dsn: RedisDsn
+
+
 class Config(BaseModel):
     bot: BotConfig
-    db: DbConfig
     logging: LogsConfig
+    db: DbConfig
+    redis: RedisConfig
 
     class Config:
         alias_generator = str.upper

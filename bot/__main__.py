@@ -1,10 +1,10 @@
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
+from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.fsm.storage.base import DefaultKeyBuilder
 from aiogram_dialog import setup_dialogs
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from fluentogram import TranslatorHub
 import structlog
-from redis.asyncio.client import Redis
 
 from bot.handling.handlers import start_router
 from bot.handling.dialogs import first_start_dialog, create_task_dialog
@@ -16,10 +16,11 @@ from config import Config
 async def main(config: Config, session_maker: async_sessionmaker):
     log = structlog.get_logger(__name__)
     log.info("INFO")
-    bot = Bot(token=config.token.get_secret_value())
-    redis = Redis(host="localhost")
-    storage = RedisStorage(
-        redis=redis,
+
+    bot = Bot(token=config.bot.token.get_secret_value())
+
+    storage = RedisStorage.from_url(
+        url=str(config.redis.dsn),
         key_builder=DefaultKeyBuilder(with_destiny=True),
     )
     dp = Dispatcher(storage=storage)

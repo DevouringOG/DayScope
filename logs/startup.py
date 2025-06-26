@@ -1,7 +1,7 @@
 import logging
 import structlog
 
-from logs.config import LogsConfig
+from config import LogsConfig
 
 
 def startup(config: LogsConfig):

@@ -1,4 +1,3 @@
-from .config import LogsConfig
 from .startup import startup
 
-__all__ = ["LogsConfig", "startup"]
+__all__ = ["startup"]

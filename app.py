@@ -26,7 +26,7 @@ session_maker = async_sessionmaker(
 
 asyncio.run(
     bot(
-        config=config.bot,
+        config=config,
         session_maker=session_maker,
     )
 )
