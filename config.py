@@ -1,4 +1,4 @@
-from pydantic import BaseModel, SecretStr, PostgresDsn, RedisDsn
+from pydantic import BaseModel, SecretStr, PostgresDsn, RedisDsn, ConfigDict
 from dynaconf import Dynaconf
 from typing import Literal
 
@@ -21,13 +21,12 @@ class RedisConfig(BaseModel):
 
 
 class Config(BaseModel):
+    model_config = ConfigDict(alias_generator=str.upper)
+
     bot: BotConfig
     logging: LogsConfig
     db: DbConfig
     redis: RedisConfig
-
-    class Config:
-        alias_generator = str.upper
 
 
 def parse_config():

@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from fluentogram import TranslatorHub
 import structlog
 
-from bot.handling.handlers import start_router
-from bot.handling.dialogs import first_start_dialog, create_task_dialog
+from bot.handling.handlers import get_routers
+from bot.handling.dialogs import get_dialogs
 from I18N import i18n_factory
 from bot.handling.middlewares import TranslatorRunnerMiddleware, DbSessionMiddleware
 from config import Config
@@ -30,7 +30,7 @@ async def main(config: Config, session_maker: async_sessionmaker):
     dp.update.middleware(TranslatorRunnerMiddleware(translator_hub))
     dp.update.outer_middleware(DbSessionMiddleware(session_pool=session_maker))
 
-    dp.include_routers(start_router, first_start_dialog, create_task_dialog)
+    dp.include_routers(*get_routers(), *get_dialogs())
     setup_dialogs(dp)
 
     await dp.start_polling(bot)

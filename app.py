@@ -1,6 +1,5 @@
 import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-import structlog
 
 from bot import bot
 from config import parse_config
@@ -12,9 +11,6 @@ asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 config = parse_config()
 
 logs.startup(config=config.logging)
-
-logger = structlog.get_logger(__name__)
-logger.info(str(config.db.dsn))
 
 engine = create_async_engine(
     url=str(config.db.dsn),
