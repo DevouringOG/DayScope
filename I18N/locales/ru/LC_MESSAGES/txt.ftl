@@ -4,3 +4,6 @@ enter-title = Пожалуйста, введите название задачи
 enter-value = Пожалуйста, введите значение задачи (1-5).
 wrong-habbit-title = Название должно быть от 1 до 10 символов.
 wrong-habbit-value = Значение должно быть от 1 до 5.
+task-added = Задача "{ $taskName }" добавленна!
+tasks-list = Список дел
+task-view = Название: { $title }. Цёенность { $value }

@@ -4,3 +4,6 @@ enter-title = Please enter the title of your task (1-10 characters).
 enter-value = Please enter the value of your task (1-5).
 wrong-habbit-title = The title must be between 1 and 10 characters.
 wrong-habbit-value = The value must be between 1 and 5.
+task-added = Task "{ $taskName }" has been added!
+tasks-list = Tasks list
+task-view = Title: { $title }. Value { $value }
