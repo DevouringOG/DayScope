@@ -7,3 +7,7 @@ wrong-habbit-value = Значение должно быть от 1 до 5.
 task-added = Задача "{ $taskName }" добавленна!
 tasks-list = Список дел
 task-view = Название: { $title }. Цёенность { $value }
+task-change-title = Изменить название
+enter-new-title = Пожалуйста, введите новое название задачи (1-10 символов).
+title-update-success = Название успешно обновлено!
+back = "Назад"

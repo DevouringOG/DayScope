@@ -19,6 +19,8 @@ async def current_task_getter(dialog_manager: DialogManager, *args, **kwargs):
     session = dialog_manager.middleware_data["session"]
     current_task_id = dialog_manager.start_data["current_task_id"]
     task = await orm_get_task(session, current_task_id)
+    dialog_manager.dialog_data["task_title"] = task.title
+    dialog_manager.dialog_data["task_value"] = task.value
     return {
         "title": task.title,
         "value": task.value,

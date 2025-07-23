@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 import structlog
 
 from bot.handling.states import TasksSG, CurrentTaskSG
-from database.requests import orm_add_task
+from database.requests import orm_add_task, orm_task_update_value, orm_task_change_title
 
 
 logger = structlog.get_logger(__name__)
@@ -50,4 +50,37 @@ async def task_button_on_click(
         button: SwitchTo,
         dialog_manager: DialogManager,
 ):
-    await dialog_manager.start(state=CurrentTaskSG.view, data={"current_task_id": dialog_manager.item_id})
+    await dialog_manager.start(
+        state=CurrentTaskSG.view,
+        data={
+            "current_task_id": int(dialog_manager.item_id),
+        },
+    )
+
+
+async def task_update_value_handler(
+        callback: CallbackQuery,
+        button: Button,
+        dialog_manager: DialogManager,
+):
+    session = dialog_manager.middleware_data["session"]
+    task_id = dialog_manager.start_data["current_task_id"]
+    new_value = int(button.widget_id[-1])
+    await orm_task_update_value(session, task_id, new_value)
+    i18n = dialog_manager.middleware_data["i18n"]
+    task_title = dialog_manager.dialog_data["task_title"]
+    await callback.message.edit_text(i18n.task.view(title=task_title, value=new_value))
+
+
+async def task_change_title_handler(
+        message: Message,
+        widget: MessageInput,
+        dialog_manager: DialogManager,
+):
+    session = dialog_manager.middleware_data["session"]
+    task_id = dialog_manager.start_data["current_task_id"]
+    new_title = message.text
+    await orm_task_change_title(session, task_id, new_title)
+    i18n = dialog_manager.middleware_data["i18n"]
+    await message.answer(i18n.title.update.success())
+    await dialog_manager.switch_to(state=CurrentTaskSG.view)

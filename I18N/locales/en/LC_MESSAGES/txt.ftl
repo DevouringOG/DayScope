@@ -7,3 +7,7 @@ wrong-habbit-value = The value must be between 1 and 5.
 task-added = Task "{ $taskName }" has been added!
 tasks-list = Tasks list
 task-view = Title: { $title }. Value { $value }
+task-change-title = Change title
+enter-new-title = Please enter a new title for your task (1-10 characters).
+title-update-success = Title updated successfully!
+back = "Back"
