@@ -1,12 +1,12 @@
 from aiogram.types import Message, CallbackQuery
-from aiogram_dialog import DialogManager, ShowMode, SubManager
+from aiogram_dialog import DialogManager, ShowMode, StartMode, SubManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, SwitchTo
 from fluentogram import TranslatorRunner
 import structlog
 
 from bot.handling.states import TasksSG, CurrentTaskSG
-from database.requests import orm_add_task, orm_task_update_value, orm_task_change_title
+from database.requests import orm_add_task, orm_task_update_value, orm_task_change_title, orm_task_remove
 
 
 logger = structlog.get_logger(__name__)
@@ -35,7 +35,7 @@ async def task_set_title_handler(
         return
 
     i18n = get_i18n(dialog_manager)
-    await message.answer(i18n.wrong.habbit.title())
+    await message.answer(i18n.wrong.habit.title())
 
 
 async def task_create_handler(
@@ -55,7 +55,7 @@ async def task_create_handler(
     )
 
     i18n = get_i18n(dialog_manager)
-    await callback.message.edit_text(text=i18n.task.added(taskName=task_title))
+    await callback.message.edit_text(text=i18n.task.added(task_title=task_title))
     await dialog_manager.start(TasksSG.view, show_mode=ShowMode.SEND)
 
 
@@ -95,16 +95,34 @@ async def task_change_title_handler(
         dialog_manager: DialogManager,
 ):
     """Change the title of the current task using user input."""
+    old_title = dialog_manager.dialog_data["task_title"]
     new_title = message.text
     if not is_valid_title(title=new_title):
         i18n = get_i18n(dialog_manager)
-        await message.answer(i18n.wrong.habbit.title())
+        await message.answer(i18n.wrong.habit.title())
         return
 
     session = dialog_manager.middleware_data["session"]
     task_id = dialog_manager.start_data["current_task_id"]
     await orm_task_change_title(session, task_id, new_title)
+    dialog_manager.dialog_data["task_title"] = new_title
 
     i18n = dialog_manager.middleware_data["i18n"]
-    await message.answer(i18n.title.update.success())
+    await message.answer(i18n.title.update.success(old_title=old_title, new_title=new_title))
     await dialog_manager.switch_to(state=CurrentTaskSG.view)
+
+
+async def task_remove(
+        callback: CallbackQuery,
+        button: Button,
+        dialog_manager: DialogManager,
+):
+    """Handles task deletion"""
+    session = dialog_manager.middleware_data["session"]
+    task_id = dialog_manager.start_data["current_task_id"]
+    await orm_task_remove(session, task_id)
+
+    i18n = dialog_manager.middleware_data["i18n"]
+    task_title = dialog_manager.dialog_data["task_title"]
+    await callback.message.edit_text(i18n.task.remove(task_title=task_title))
+    await dialog_manager.start(state=TasksSG.view, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND)

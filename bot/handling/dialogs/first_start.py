@@ -9,7 +9,7 @@ from bot.handling.states import StartSG
 first_start_dialog = Dialog(
     Window(
         I18NFormat("first-start"),
-        Start(text=I18NFormat("add-habbit"), id="add_habbit_btn", state=CreateTaskSG.enter_title),
+        Start(text=I18NFormat("add-habit"), id="add_habit_btn", state=CreateTaskSG.enter_title),
         state=StartSG.start,
     )
 )

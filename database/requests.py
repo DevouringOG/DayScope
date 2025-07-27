@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from database.models import User, Task
 
 
@@ -83,3 +83,13 @@ async def orm_task_change_title(
     stmt = update(Task).where(Task.id == task_id).values(title=new_title)
     await session.execute(stmt)
     await session.commit()
+
+
+async def orm_task_remove(
+        session: AsyncSession,
+        task_id: int,
+):
+    stmt = delete(Task).where(Task.id == task_id)
+    await session.execute(stmt)
+    await session.commit()
+    

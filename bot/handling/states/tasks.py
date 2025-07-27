@@ -13,4 +13,4 @@ class TasksSG(StatesGroup):
 class CurrentTaskSG(StatesGroup):
     view = State()
     change_title = State()
-    confirm_delete = State()
+    confirm_remove = State()
