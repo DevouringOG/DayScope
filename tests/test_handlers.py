@@ -1,14 +1,20 @@
 import asyncio
 
+from aiogram import Dispatcher
 import pytest
+from aiogram.fsm.context import FSMContext
 from aiogram_dialog.test_tools import MockMessageManager, BotClient
 from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 import structlog
 
-from tests.utils import test_user, create_db, assert_single_message_sent
+from tests.mocked_aiogram import MockedBot
+from tests.utils import assert_single_message_sent
 from database.requests import orm_get_user_by_id
+from bot.handling.states import CreateTaskSG
 
+
+CHAT_ID = 1234567
 
 logger = structlog.get_logger(__name__)
 
@@ -24,12 +30,45 @@ async def test_cmd_start(
     user_client: BotClient,
 ):
     message_manager.reset_history()
-    await create_db(engine=engine)
-    user_client.user = test_user
 
     await user_client.send(text="/start")
 
     assert_single_message_sent(message_manager, i18n.first.start())
 
-    response = await orm_get_user_by_id(session, test_user.id)
-    assert response is not None, f"User with ID {test_user.id} was not found in the database."
+    response = await orm_get_user_by_id(session, user_client.user.id)
+    assert response is not None, f"User with ID {user_client.user.id} was not found in the database."
+
+
+# @pytest.mark.asyncio
+# async def test_creating_task(
+#     dp: Dispatcher,
+#     bot: MockedBot,
+#     i18n: TranslatorRunner,
+#     engine: AsyncEngine,
+#     session: AsyncSession,
+#     message_manager: MockMessageManager,
+#     user_client: BotClient,
+# ):
+#     message_manager.reset_history()
+#     fsm_context: FSMContext = dp.fsm.get_context(bot=bot, user_id=user_client.user.id, chat_id=CHAT_ID)
+
+#    # 1. Send /start
+#     await user_client.send(text="/start")
+
+#     # 2. Get the last message sent (with inline keyboard)
+#     last_message = message_manager.one_message()  # or .last_message(), depending on your utils
+
+#     # 3. Extract callback data from the inline keyboard
+#     # Inline keyboard is usually in last_message.reply_markup.inline_keyboard
+#     button = last_message.reply_markup.inline_keyboard[0][0]  # first button
+
+#     # 4. Simulate clicking the inline button
+#     await user_client.click(last_message, button)
+
+#     # 5. Assert the expected response
+#     assert_single_message_sent(message_manager, i18n.enter.title())
+
+
+#     # assert_single_message_sent(message_manager, i18n.enter.value())
+#     # state = await fsm_context.get_state()
+#     # assert state == CreateTaskSG.enter_value

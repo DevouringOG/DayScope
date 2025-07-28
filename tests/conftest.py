@@ -1,4 +1,5 @@
 from typing import AsyncGenerator, Generator
+from aiogram.types import User
 import pytest
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -65,13 +66,21 @@ def dp(engine: AsyncEngine, message_manager: MockMessageManager) -> Dispatcher:
 @pytest.fixture(scope="session")
 def user_client(dp: Dispatcher, bot: MockedBot) -> BotClient:
     logger.info("Creating user client")
-    return BotClient(
+    client = BotClient(
         dp=dp,
         user_id=123456789,
         chat_id=123456789,
         chat_type="private",
-        bot=bot
+        bot=bot,
     )
+    user = User(
+        id=1234567,
+        is_bot=False,
+        first_name="User",
+        language_code="en",
+    )
+    client.user = user
+    return client
 
 
 @pytest.fixture(scope="session")
