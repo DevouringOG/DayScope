@@ -20,6 +20,32 @@ def value_buttons_row(handler):
     ])
 
 
+view_tasks_dialog = Dialog(
+    Window(
+        I18NFormat("tasks-list"),
+        ListGroup(
+            Button(
+                text=Format("{item[title]}"),
+                id="btn_task",
+                on_click=task_button_on_click,
+            ),
+            id="tasks_list",
+            item_id_getter=lambda x: x["id"],
+            items="tasks",
+        ),
+        Row(
+            Cancel(text=I18NFormat("to-menu")),
+            Start(
+                text=I18NFormat("add-habit"),
+                id="btn_start_to_add_habbit",
+                state=CreateTaskSG.enter_title,
+            ),
+        ),
+        getter=task_list_getter,
+        state=TasksSG.view,
+    ),
+)
+
 create_task_dialog = Dialog(
     Window(
         I18NFormat("enter-title"),
@@ -36,29 +62,6 @@ create_task_dialog = Dialog(
         Back(text=I18NFormat("back")),
         state=CreateTaskSG.enter_value,
     )
-)
-
-view_tasks_dialog = Dialog(
-    Window(
-        I18NFormat("tasks-list"),
-        ListGroup(
-            Button(
-                text=Format("{item[title]}"),
-                id="btn_task",
-                on_click=task_button_on_click,
-            ),
-            id="tasks_list",
-            item_id_getter=lambda x: x["id"],
-            items="tasks",
-        ),
-        Start(
-            text=I18NFormat("add-habit"),
-            id="btn_start_to_add_habbit",
-            state=CreateTaskSG.enter_title,
-        ),
-        getter=task_list_getter,
-        state=TasksSG.view,
-    ),
 )
 
 view_current_task = Dialog(

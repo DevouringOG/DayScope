@@ -3,6 +3,7 @@ from aiogram_dialog import Dialog
 
 from .first_start import first_start_dialog
 from .tasks import create_task_dialog, view_tasks_dialog, view_current_task
+from .menu import menu_dialog
 
 
 def get_dialogs() -> List[Dialog]:
@@ -11,4 +12,5 @@ def get_dialogs() -> List[Dialog]:
         create_task_dialog,
         view_tasks_dialog,
         view_current_task,
+        menu_dialog,
     )

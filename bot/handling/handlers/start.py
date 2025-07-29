@@ -4,7 +4,7 @@ from aiogram.types import Message
 from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.handling.states import StartSG, TasksSG
+from bot.handling.states import StartSG, MenuSG
 from database.requests import orm_add_user
 
 
@@ -21,4 +21,4 @@ async def start(msg: Message, dialog_manager: DialogManager, session: AsyncSessi
     if is_new_user:
         await dialog_manager.start(state=StartSG.start, mode=StartMode.RESET_STACK)
     else:
-        await dialog_manager.start(state=TasksSG.view, mode=StartMode.RESET_STACK)
+        await dialog_manager.start(state=MenuSG.view, mode=StartMode.RESET_STACK)
