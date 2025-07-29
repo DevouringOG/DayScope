@@ -2,6 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select, update, delete
 from database.models import User, Task
+import structlog
+
+
+logger = structlog.get_logger(__name__)
 
 
 async def orm_add_user(
@@ -14,10 +18,13 @@ async def orm_add_user(
             "telegram_id": telegram_id,
             "lang": lang,
         },
-    ).on_conflict_do_nothing(index_elements=["telegram_id"])
+    ).on_conflict_do_nothing(
+        index_elements=["telegram_id"]
+    ).returning(User.telegram_id)
 
-    await session.execute(stmt)
+    result = await session.execute(stmt)
     await session.commit()
+    return result.scalar() is not None
 
 
 async def orm_get_user_by_id(
