@@ -3,9 +3,10 @@ from aiogram import Router
 
 from .start import start_router
 from .tasks import task_create_handler, task_set_title_handler, task_button_on_click, task_update_value_handler, task_change_title_handler, task_remove
+from .today import check_task_button_on_click
 
 
-__all__ = ["task_create_handler", "task_set_title_handler", "task_button_on_click", "task_update_value_handler", "task_change_title_handler", "task_remove"]
+__all__ = ["task_create_handler", "task_set_title_handler", "task_button_on_click", "task_update_value_handler", "task_change_title_handler", "task_remove", "check_task_button_on_click"]
 
 
 def get_routers() -> List[Router]:

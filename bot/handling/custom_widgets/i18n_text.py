@@ -3,6 +3,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition 
 from fluentogram import TranslatorRunner
 from fluent_compiler.errors import FluentReferenceError
+from fluentogram.exceptions import FormatError
 import structlog
 
 
@@ -18,7 +19,7 @@ class I18NFormat(Text):
         i18n: TranslatorRunner = manager.middleware_data.get("i18n")
         try:
             text = i18n.get(self.key, **data)
-        except FluentReferenceError:
+        except (FluentReferenceError, FormatError):
             text = i18n.get(self.key, **manager.dialog_data)
         if text is None:
             raise KeyError(f'translation key = "{self.key}" not found')

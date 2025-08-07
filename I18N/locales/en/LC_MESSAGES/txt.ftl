@@ -20,3 +20,5 @@ to-tasks = ✅ Tasks
 to-help = ❓ Help
 help-text = ℹ️ Here you can find help and instructions.
 to-menu = 🏠 Menu
+today-text = 📅 Today - your daily tasks
+note = 📝 Note

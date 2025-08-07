@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Row, ListGroup, Cancel, Start, SwitchTo, Back
 from bot.handling.custom_widgets import I18NFormat
 
-from bot.handling.states import CreateTaskSG, TasksSG, CurrentTaskSG
+from bot.handling.states import CreateTaskSG, TasksSG, CurrentTaskSG, MenuSG
 from bot.handling.handlers import task_set_title_handler, task_create_handler, task_button_on_click, task_update_value_handler, task_change_title_handler, task_remove
 from bot.handling.dialogs.getters import task_list_getter, current_task_getter
 
@@ -34,7 +34,11 @@ view_tasks_dialog = Dialog(
             items="tasks",
         ),
         Row(
-            Cancel(text=I18NFormat("to-menu")),
+            Start(
+                text=I18NFormat("to-menu"),
+                id="btn_start_to_menu",
+                state=MenuSG.view,
+            ),
             Start(
                 text=I18NFormat("add-habit"),
                 id="btn_start_to_add_habbit",

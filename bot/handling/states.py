@@ -23,3 +23,18 @@ class CurrentTaskSG(StatesGroup):
     view = State()
     change_title = State()
     confirm_remove = State()
+
+
+class TodaySG(StatesGroup):
+    view = State()
+
+
+class CreateNote(StatesGroup):
+    enter_text = State()
+    confirm = State()
+
+
+class CurrentNoteSG(StatesGroup):
+    view = State()
+    change_text = State()
+    confirm_remove = State()
