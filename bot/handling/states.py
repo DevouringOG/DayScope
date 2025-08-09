@@ -31,7 +31,8 @@ class TodaySG(StatesGroup):
 
 class CreateNote(StatesGroup):
     enter_text = State()
-    confirm = State()
+    confirm_text = State()
+    edit_text = State()
 
 
 class CurrentNoteSG(StatesGroup):

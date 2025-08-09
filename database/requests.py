@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select, update, delete
-from database.models import User, Task, TaskStatus, Day
+from database.models import User, Task, TaskStatus, Day, Note
 import structlog
 
 
@@ -160,5 +160,18 @@ async def orm_task_change_status(
         task_id: int,
 ):
     stmt = update(TaskStatus).where(TaskStatus.id == task_id).values(completed=~TaskStatus.completed)
+    await session.execute(stmt)
+    await session.commit()
+
+
+async def orm_note_save(
+        session: AsyncSession,
+        note_text: str,
+        day_id: int,
+):
+    stmt = insert(Note).values(
+        day=day_id,
+        text=note_text,
+    )
     await session.execute(stmt)
     await session.commit()

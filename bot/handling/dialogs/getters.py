@@ -43,6 +43,11 @@ async def today_task_statuses_list_getter(dialog_manager: DialogManager, *args, 
     dialog_manager.dialog_data["today_id"] = today_id
     
     tasks_statuses_with_tasks = await orm_get_tasks_statuses(session, today_id, user_telegram_id)
+    
+    # Check if note exists for today (you'll need to implement orm_get_note_for_today)
+    # note_exists = await orm_get_note_for_today(session, today_id, user_telegram_id) is not None
+    note_exists = True  # Placeholder - replace with actual database check
+    
     ret_data = {
         "tasks": [
             {
@@ -50,7 +55,9 @@ async def today_task_statuses_list_getter(dialog_manager: DialogManager, *args, 
                 "title": task.title + (" ✅" if task_status.completed else " ⭕"),
             }
             for task_status, task in tasks_statuses_with_tasks
-        ]
+        ],
+        "note_exists": note_exists,
+        "today_id": today_id,
     }
     logger.info("DATA", tasks_statuses=tasks_statuses_with_tasks)
     return ret_data
