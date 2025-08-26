@@ -1,15 +1,18 @@
-from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.fsm.storage.base import DefaultKeyBuilder
-from aiogram_dialog import setup_dialogs
-from sqlalchemy.ext.asyncio import async_sessionmaker
-from fluentogram import TranslatorHub
 import structlog
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.base import DefaultKeyBuilder
+from aiogram.fsm.storage.redis import RedisStorage
+from aiogram_dialog import setup_dialogs
+from fluentogram import TranslatorHub
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from bot.handling.handlers import get_routers
 from bot.handling.dialogs import get_dialogs
-from I18N import i18n_factory
-from bot.handling.middlewares import TranslatorRunnerMiddleware, DbSessionMiddleware
+from bot.handling.dialogs.start_menu.handlers import start_router
+from bot.handling.middlewares import (
+    DbSessionMiddleware,
+    TranslatorRunnerMiddleware,
+)
+from bot.i18n_factory import get_translator_hub
 from config import Config
 
 
@@ -25,12 +28,12 @@ async def main(config: Config, session_maker: async_sessionmaker):
     )
     dp = Dispatcher(storage=storage)
 
-    translator_hub: TranslatorHub = i18n_factory()
+    translator_hub: TranslatorHub = get_translator_hub()
 
     dp.update.middleware(TranslatorRunnerMiddleware(translator_hub))
     dp.update.outer_middleware(DbSessionMiddleware(session_pool=session_maker))
 
-    dp.include_routers(*get_routers(), *get_dialogs())
+    dp.include_routers(start_router, *get_dialogs())
     setup_dialogs(dp)
 
     await dp.start_polling(bot)

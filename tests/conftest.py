@@ -1,23 +1,30 @@
 from typing import AsyncGenerator, Generator
-from aiogram.types import User
+
 import pytest
+import pytest_asyncio
+import structlog
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram_dialog.test_tools import MockMessageManager, BotClient
+from aiogram.types import User
 from aiogram_dialog import setup_dialogs
-from fluentogram import TranslatorRunner, TranslatorHub
-import pytest_asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, async_sessionmaker, AsyncSession
-import structlog
+from aiogram_dialog.test_tools import BotClient, MockMessageManager
+from fluentogram import TranslatorHub, TranslatorRunner
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    async_sessionmaker,
+    create_async_engine,
+)
+
 import logs
-
-from tests.mocked_aiogram import MockedBot
-from bot.handling.middlewares import DbSessionMiddleware, TranslatorRunnerMiddleware
 from bot.handling.dialogs import get_dialogs
-from bot.handling.handlers import get_routers
-from I18N import i18n_factory
-from config import parse_config, Config
-
+from bot.handling.dialogs.start_menu.handlers import start_router
+from bot.handling.middlewares import (
+    DbSessionMiddleware,
+    TranslatorRunnerMiddleware,
+)
+from bot.i18n_factory import get_translator_hub
+from config import Config, parse_config
+from tests.mocked_aiogram import MockedBot
 
 cfg: Config = parse_config()
 logs.startup(cfg.logging)
@@ -51,14 +58,16 @@ def dp(engine: AsyncEngine, message_manager: MockMessageManager) -> Dispatcher:
     logger.info("Creating dispatcher")
     dispatcher = Dispatcher(storage=MemoryStorage())
     logger.info("Setting dispatcher")
-    dispatcher.include_routers(*get_routers(), *get_dialogs())
+    dispatcher.include_routers(start_router, *get_dialogs())
     setup_dialogs(dispatcher, message_manager=message_manager)
 
-    translator_hub: TranslatorHub = i18n_factory()
+    translator_hub: TranslatorHub = get_translator_hub()
     dispatcher.update.middleware(TranslatorRunnerMiddleware(translator_hub))
 
     async_session = async_sessionmaker(engine, expire_on_commit=False)
-    dispatcher.update.outer_middleware(DbSessionMiddleware(session_pool=async_session))
+    dispatcher.update.outer_middleware(
+        DbSessionMiddleware(session_pool=async_session)
+    )
 
     return dispatcher
 
@@ -74,10 +83,7 @@ def user_client(dp: Dispatcher, bot: MockedBot) -> BotClient:
         bot=bot,
     )
     user = User(
-        id=1234567,
-        is_bot=False,
-        first_name="User",
-        language_code="en",
+        id=1234567, is_bot=False, first_name="User", language_code="en"
     )
     client.user = user
     return client
@@ -86,7 +92,7 @@ def user_client(dp: Dispatcher, bot: MockedBot) -> BotClient:
 @pytest.fixture(scope="session")
 def i18n() -> TranslatorRunner:
     logger.info("Creating translator runner i18n")
-    translator_hub = i18n_factory()
+    translator_hub = get_translator_hub()
     return translator_hub.get_translator_by_locale(locale=DEFAULT_LOCALE)
 
 

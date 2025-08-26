@@ -1,11 +1,10 @@
-from aiogram_dialog.widgets.text import Text
-from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.common import WhenCondition 
-from fluentogram import TranslatorRunner
-from fluent_compiler.errors import FluentReferenceError
-from fluentogram.exceptions import FormatError
 import structlog
-
+from aiogram_dialog import DialogManager
+from aiogram_dialog.widgets.common import WhenCondition
+from aiogram_dialog.widgets.text import Text
+from fluent_compiler.errors import FluentReferenceError
+from fluentogram import TranslatorRunner
+from fluentogram.exceptions import FormatError
 
 logger = structlog.get_logger(__name__)
 

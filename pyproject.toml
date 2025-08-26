@@ -18,6 +18,10 @@ dependencies = [
     "redis (>=6.2.0,<7.0.0)",
     "pytest (>=8.4.1,<9.0.0)",
     "pytest-asyncio (>=1.0.0,<2.0.0)",
+    "black (>=25.1.0,<26.0.0)",
+    "flake8 (>=7.3.0,<8.0.0)",
+    "isort (>=6.0.1,<7.0.0)",
+    "pre-commit (>=4.3.0,<5.0.0)",
 ]
 
 
@@ -27,3 +31,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = false
+
+[tool.black]
+exclude = "alembic/"
+line-length = 79
+
+[tool.isort]
+profile = "black"
+extend_skip_glob = ["alembic/*"]

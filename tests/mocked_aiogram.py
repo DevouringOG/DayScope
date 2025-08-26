@@ -1,5 +1,13 @@
 from collections import deque
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Deque, Dict, Optional, Type
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    Deque,
+    Dict,
+    Optional,
+    Type,
+)
 
 from aiogram import Bot
 from aiogram.client.session.base import BaseSession
@@ -15,7 +23,9 @@ class MockedSession(BaseSession):
         self.requests: Deque[TelegramMethod[TelegramType]] = deque()
         self.closed = True
 
-    def add_result(self, response: Response[TelegramType]) -> Response[TelegramType]:
+    def add_result(
+        self, response: Response[TelegramType]
+    ) -> Response[TelegramType]:
         self.responses.append(response)
         return response
 
@@ -86,8 +96,7 @@ class MockedBot(Bot):
             description=description,
             error_code=error_code,
             parameters=ResponseParameters(
-                migrate_to_chat_id=migrate_to_chat_id,
-                retry_after=retry_after,
+                migrate_to_chat_id=migrate_to_chat_id, retry_after=retry_after
             ),
         )
         self.session.add_result(response)

@@ -1,11 +1,16 @@
 from typing import List
+
 from aiogram_dialog import Dialog
 
-from .first_start import first_start_dialog
-from .tasks import create_task_dialog, view_tasks_dialog, view_current_task
-from .menu import menu_dialog
-from .today import today_dialog
-from .note import create_note_dialog
+from .notes.dialog import create_note_dialog, current_note_dialog
+from .start_menu.dialog import menu_dialog
+from .start_menu.first_start_dialog import first_start_dialog
+from .tasks.dialog import (
+    create_task_dialog,
+    view_current_task,
+    view_tasks_dialog,
+)
+from .today.dialog import today_dialog
 
 
 def get_dialogs() -> List[Dialog]:
@@ -17,4 +22,5 @@ def get_dialogs() -> List[Dialog]:
         menu_dialog,
         today_dialog,
         create_note_dialog,
+        current_note_dialog,
     )

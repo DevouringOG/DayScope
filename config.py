@@ -1,6 +1,7 @@
-from pydantic import BaseModel, SecretStr, PostgresDsn, RedisDsn, ConfigDict
-from dynaconf import Dynaconf
 from typing import Literal
+
+from dynaconf import Dynaconf
+from pydantic import BaseModel, ConfigDict, PostgresDsn, RedisDsn, SecretStr
 
 
 class BotConfig(BaseModel):
@@ -8,7 +9,9 @@ class BotConfig(BaseModel):
 
 
 class LogsConfig(BaseModel):
-    level: Literal["CRITICAL", "FATAL", "ERROR", "WARNING", "INFO", "DEBUG"] = "INFO"
+    level: Literal[
+        "CRITICAL", "FATAL", "ERROR", "WARNING", "INFO", "DEBUG"
+    ] = "INFO"
     time_format: str = "utc"
 
 
@@ -30,7 +33,5 @@ class Config(BaseModel):
 
 
 def parse_config():
-    settings = Dynaconf(
-        settings_files=[".secrets.toml", "settings.toml"],
-    )
+    settings = Dynaconf(settings_files=[".secrets.toml", "settings.toml"])
     return Config.model_validate(settings.as_dict())
