@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Callable, Dict
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, User
@@ -6,6 +6,11 @@ from fluentogram import TranslatorHub
 
 
 class TranslatorRunnerMiddleware(BaseMiddleware):
+    """
+    Middleware that attaches a TranslatorRunner
+    to middleware data as 'i18n'.
+    """
+
     def __init__(self, hub: TranslatorHub):
         self.hub = hub
         super().__init__()
@@ -16,7 +21,7 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: Dict[str, Any],
     ) -> Any:
-        user: User | None = data.get("event_from_user")
+        user: Optional[User] = data.get("event_from_user")
 
         if user is None:
             return await handler(event, data)

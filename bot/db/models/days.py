@@ -7,13 +7,14 @@ from bot.db.models import Base
 
 
 class Day(Base):
+    """Represents a specific calendar date for a user."""
+
     __tablename__ = "days"
 
     id: Mapped[int] = mapped_column(
         BigInteger,
         primary_key=True,
         nullable=False,
-        unique=True,
         autoincrement=True,
     )
     date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
@@ -24,3 +25,6 @@ class Day(Base):
     __table_args__ = (
         UniqueConstraint("user", "date", name="unique_user_date"),
     )
+
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        return f"Day(id={self.id!r}, date={self.date!r}, user={self.user!r})"

@@ -12,7 +12,7 @@ class LogsConfig(BaseModel):
     level: Literal[
         "CRITICAL", "FATAL", "ERROR", "WARNING", "INFO", "DEBUG"
     ] = "INFO"
-    time_format: str = "utc"
+    timestamp_format: str = "utc"
 
 
 class DbConfig(BaseModel):
@@ -32,6 +32,6 @@ class Config(BaseModel):
     redis: RedisConfig
 
 
-def parse_config():
+def parse_config() -> Config:
     settings = Dynaconf(settings_files=[".secrets.toml", "settings.toml"])
     return Config.model_validate(settings.as_dict())

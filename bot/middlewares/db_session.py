@@ -6,6 +6,11 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
 class DbSessionMiddleware(BaseMiddleware):
+    """
+    Provide SQLAlchemy async session
+    from a session maker to dialog data as 'session'.
+    """
+
     def __init__(self, session_pool: async_sessionmaker):
         super().__init__()
         self.session_pool = session_pool

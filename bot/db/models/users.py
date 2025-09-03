@@ -11,7 +11,6 @@ class User(Base):
         BigInteger,
         primary_key=True,
         nullable=False,
-        unique=True,
         autoincrement=True,
     )
     telegram_id: Mapped[int] = mapped_column(
@@ -25,3 +24,9 @@ class User(Base):
         default="en",
         nullable=False,
     )
+
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        return (
+            f"User(id={self.id!r}, telegram_id={self.telegram_id!r}, "
+            f"lang={self.lang!r})"
+        )

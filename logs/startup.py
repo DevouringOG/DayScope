@@ -11,7 +11,9 @@ def startup(config: LogsConfig):
         structlog.processors.add_log_level,
         structlog.processors.StackInfoRenderer(),
         structlog.dev.set_exc_info,
-        structlog.processors.TimeStamper(fmt=config.time_format, utc=False),
+        structlog.processors.TimeStamper(
+            fmt=config.timestamp_format, utc=False
+        ),
     ]
 
     handler = logging.StreamHandler()

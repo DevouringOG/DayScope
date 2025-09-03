@@ -1,19 +1,21 @@
 from aiogram import Router
-from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.db.requests import orm_add_user
-from bot.handling.dialogs.states import MenuSG, StartSG
+from bot.dialogs.states import MenuSG, StartSG
 
 start_router = Router()
 
 
-@start_router.message(CommandStart())
-async def start(
+async def start_handler(
     msg: Message, dialog_manager: DialogManager, session: AsyncSession
-):
+) -> None:
+    """
+    Handle /start command, create user if needed
+    and navigate to the correct dialog.
+    """
     is_new_user = await orm_add_user(
         session=session,
         telegram_id=msg.from_user.id,

@@ -6,17 +6,17 @@ from aiogram_dialog import setup_dialogs
 from fluentogram import TranslatorHub
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from bot.handling.dialogs import get_dialogs
-from bot.handling.dialogs.start_menu.handlers import start_router
-from bot.handling.middlewares import (
+from bot.dialogs import get_dialogs
+from bot.dialogs.start_menu.handlers import start_router
+from bot.i18n_factory import get_translator_hub
+from bot.middlewares import (
     DbSessionMiddleware,
     TranslatorRunnerMiddleware,
 )
-from bot.i18n_factory import get_translator_hub
 from config import Config
 
 
-async def main(config: Config, session_maker: async_sessionmaker):
+async def main(config: Config, session_maker: async_sessionmaker) -> None:
     log = structlog.get_logger(__name__)
     log.info("INFO")
 

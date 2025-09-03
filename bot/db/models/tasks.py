@@ -34,6 +34,12 @@ class Task(Base):
         ForeignKey("users.telegram_id", ondelete="CASCADE"),
     )
 
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        return (
+            f"Task(id={self.id!r}, title={self.title!r}, "
+            f"value={self.value!r}, user={self.user!r})"
+        )
+
 
 class TaskStatus(Base):
     __tablename__ = "task_status"
@@ -42,7 +48,6 @@ class TaskStatus(Base):
         BigInteger,
         primary_key=True,
         nullable=False,
-        unique=True,
         autoincrement=True,
     )
     task: Mapped[int] = mapped_column(
@@ -60,3 +65,9 @@ class TaskStatus(Base):
     )
 
     __table_args__ = (UniqueConstraint("task", "day", name="task_day_unique"),)
+
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        return (
+            f"TaskStatus(id={self.id!r}, task={self.task!r}, "
+            f"day={self.day!r}, completed={self.completed!r})"
+        )

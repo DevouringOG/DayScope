@@ -16,13 +16,13 @@ from sqlalchemy.ext.asyncio import (
 )
 
 import logs
-from bot.handling.dialogs import get_dialogs
-from bot.handling.dialogs.start_menu.handlers import start_router
-from bot.handling.middlewares import (
+from bot.dialogs import get_dialogs
+from bot.dialogs.start_menu.handlers import start_router
+from bot.i18n_factory import get_translator_hub
+from bot.middlewares import (
     DbSessionMiddleware,
     TranslatorRunnerMiddleware,
 )
-from bot.i18n_factory import get_translator_hub
 from config import Config, parse_config
 from tests.mocked_aiogram import MockedBot
 

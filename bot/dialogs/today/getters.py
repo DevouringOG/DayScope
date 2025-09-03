@@ -23,9 +23,8 @@ async def today_task_statuses_list_getter(
         session, today_id, user_telegram_id
     )
 
-    note = await orm_get_note(session, today_id)
-    dialog_manager.dialog_data["note"] = note
-    logger.info("NOTE EXISTS", note=note)
+    note_text = await orm_get_note(session, today_id)
+    dialog_manager.dialog_data["note_text"] = note_text
 
     ret_data = {
         "tasks": [
@@ -36,8 +35,6 @@ async def today_task_statuses_list_getter(
             }
             for task_status, task in tasks_statuses_with_tasks
         ],
-        "note": note,
-        "today_id": today_id,
+        "note_exists": bool(note_text),
     }
-    logger.info("DATA", tasks_statuses=tasks_statuses_with_tasks)
     return ret_data

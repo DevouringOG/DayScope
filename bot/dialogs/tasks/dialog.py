@@ -1,5 +1,5 @@
 from aiogram.enums import ContentType
-from aiogram_dialog import Dialog, Window
+from aiogram_dialog import Dialog, StartMode, Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Back,
@@ -12,22 +12,22 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.handling.custom_widgets import I18NFormat
-from bot.handling.dialogs.states import (
+from bot.custom_widgets import I18nFormat
+from bot.dialogs.states import (
     CreateTaskSG,
     CurrentTaskSG,
     MenuSG,
     TasksSG,
 )
-from bot.handling.dialogs.tasks.getters import (
+from bot.dialogs.tasks.getters import (
     current_task_getter,
     task_list_getter,
 )
-from bot.handling.dialogs.tasks.handlers import (
-    task_button_on_click,
+from bot.dialogs.tasks.handlers import (
+    task_button_on_click_handler,
     task_change_title_handler,
     task_create_handler,
-    task_remove,
+    task_remove_handler,
     task_set_title_handler,
     task_update_value_handler,
 )
@@ -48,12 +48,12 @@ def value_buttons_row(handler):
 
 view_tasks_dialog = Dialog(
     Window(
-        I18NFormat("tasks-list"),
+        I18nFormat("tasks-list"),
         ListGroup(
             Button(
                 text=Format("{item[title]}"),
                 id="btn_task",
-                on_click=task_button_on_click,
+                on_click=task_button_on_click_handler,
             ),
             id="tasks_list",
             item_id_getter=lambda x: x["id"],
@@ -61,13 +61,14 @@ view_tasks_dialog = Dialog(
         ),
         Row(
             Start(
-                text=I18NFormat("to-menu"),
+                text=I18nFormat("to-menu"),
                 id="btn_start_to_menu",
                 state=MenuSG.view,
+                mode=StartMode.RESET_STACK,
             ),
             Start(
-                text=I18NFormat("add-habit"),
-                id="btn_start_to_add_habbit",
+                text=I18nFormat("add-habit"),
+                id="btn_start_to_add_habit",
                 state=CreateTaskSG.enter_title,
             ),
         ),
@@ -78,34 +79,34 @@ view_tasks_dialog = Dialog(
 
 create_task_dialog = Dialog(
     Window(
-        I18NFormat("enter-title"),
+        I18nFormat("enter-title"),
         MessageInput(
             func=task_set_title_handler, content_types=ContentType.TEXT
         ),
-        Cancel(text=I18NFormat("back")),
+        Cancel(text=I18nFormat("back")),
         state=CreateTaskSG.enter_title,
     ),
     Window(
-        I18NFormat("enter-value"),
+        I18nFormat("enter-value"),
         value_buttons_row(handler=task_create_handler),
-        Back(text=I18NFormat("back")),
+        Back(text=I18nFormat("back")),
         state=CreateTaskSG.enter_value,
     ),
 )
 
 view_current_task = Dialog(
     Window(
-        I18NFormat("task-view"),
+        I18nFormat("task-view"),
         value_buttons_row(handler=task_update_value_handler),
         Row(
-            Cancel(text=I18NFormat("back")),
+            Cancel(text=I18nFormat("back")),
             SwitchTo(
-                text=I18NFormat("remove"),
+                text=I18nFormat("remove"),
                 state=CurrentTaskSG.confirm_remove,
                 id="btn_to_task_remove",
             ),
             SwitchTo(
-                text=I18NFormat("task-change-title"),
+                text=I18nFormat("task-change-title"),
                 state=CurrentTaskSG.change_title,
                 id="btn_task_update_title",
             ),
@@ -114,15 +115,15 @@ view_current_task = Dialog(
         state=CurrentTaskSG.view,
     ),
     Window(
-        I18NFormat("task-confirm-remove"),
+        I18nFormat("task-confirm-remove"),
         Row(
             Button(
-                text=I18NFormat("remove"),
-                on_click=task_remove,
+                text=I18nFormat("remove"),
+                on_click=task_remove_handler,
                 id="btn_task_remove_confirm",
             ),
             SwitchTo(
-                text=I18NFormat("back"),
+                text=I18nFormat("back"),
                 state=CurrentTaskSG.view,
                 id="btn_back_to_task_view",
             ),
@@ -130,12 +131,12 @@ view_current_task = Dialog(
         state=CurrentTaskSG.confirm_remove,
     ),
     Window(
-        I18NFormat("enter-new-title"),
+        I18nFormat("enter-new-title"),
         MessageInput(
             func=task_change_title_handler, content_types=ContentType.TEXT
         ),
         SwitchTo(
-            text=I18NFormat("back"),
+            text=I18nFormat("back"),
             state=CurrentTaskSG.view,
             id="btn_back_to_task_view",
         ),

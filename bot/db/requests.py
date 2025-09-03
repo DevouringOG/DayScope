@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List, Optional, Tuple
 
 import structlog
 from sqlalchemy import delete, select, update
@@ -14,7 +15,11 @@ async def orm_add_user(
     session: AsyncSession,
     telegram_id: int,
     lang: str,
-):
+) -> bool:
+    """Insert a user if not exists.
+
+    Returns True if a new user was inserted, False if already existed.
+    """
     stmt = (
         insert(User)
         .values(
@@ -35,7 +40,8 @@ async def orm_add_user(
 async def orm_get_user_by_id(
     session: AsyncSession,
     telegram_id: int,
-):
+) -> Optional[User]:
+    """Return a User by telegram_id or None if not found."""
     stmt = select(User).where(User.telegram_id == telegram_id)
     response = await session.scalar(stmt)
     return response
@@ -46,7 +52,8 @@ async def orm_add_task(
     user_telegram_id: int,
     title: str,
     value: int,
-):
+) -> None:
+    """Create a Task for a user."""
     stmt = insert(Task).values(
         {
             "title": title,
@@ -62,7 +69,8 @@ async def orm_add_task(
 async def orm_get_user_tasks(
     session: AsyncSession,
     user_telegram_id: int,
-):
+) -> List[Task]:
+    """Return all tasks for a given user."""
     stmt = select(Task).where(Task.user == user_telegram_id)
     response = await session.scalars(stmt)
     return response.all()
@@ -71,7 +79,8 @@ async def orm_get_user_tasks(
 async def orm_get_task(
     session: AsyncSession,
     task_id: int,
-):
+) -> Optional[Task]:
+    """Return a single Task by id or None if not found."""
     stmt = select(Task).where(Task.id == task_id)
     response = await session.scalar(stmt)
     return response
@@ -81,7 +90,8 @@ async def orm_task_update_value(
     session: AsyncSession,
     task_id: int,
     value: int,
-):
+) -> None:
+    """Update value of a task."""
     stmt = update(Task).where(Task.id == task_id).values(value=value)
     await session.execute(stmt)
     await session.commit()
@@ -91,7 +101,8 @@ async def orm_task_change_title(
     session: AsyncSession,
     task_id: int,
     new_title: str,
-):
+) -> None:
+    """Change title of a task."""
     stmt = update(Task).where(Task.id == task_id).values(title=new_title)
     await session.execute(stmt)
     await session.commit()
@@ -100,7 +111,8 @@ async def orm_task_change_title(
 async def orm_task_remove(
     session: AsyncSession,
     task_id: int,
-):
+) -> None:
+    """Remove task by id."""
     stmt = delete(Task).where(Task.id == task_id)
     await session.execute(stmt)
     await session.commit()
@@ -109,7 +121,8 @@ async def orm_task_remove(
 async def orm_get_today_for_user(
     session: AsyncSession,
     user_telegram_id: int,
-):
+) -> int:
+    """Get or create a Day for today for a user and return its id."""
     today = datetime.today().date()
 
     stmt = (
@@ -136,9 +149,11 @@ async def orm_get_tasks_statuses(
     session: AsyncSession,
     day_id: int,
     user_telegram_id: int,
-):
-    logger.info("DAY ID", day_id=day_id)
-    # Join TaskStatus with Task to get task details
+) -> List[Tuple[TaskStatus, Task]]:
+    """Return list of (TaskStatus, Task) tuples for the given day.
+
+    If TaskStatus rows are missing for some user tasks, create them.
+    """
     stmt = (
         select(TaskStatus, Task)
         .join(Task, TaskStatus.task == Task.id)
@@ -148,7 +163,6 @@ async def orm_get_tasks_statuses(
     user_tasks = await orm_get_user_tasks(session, user_telegram_id)
     response = await session.execute(stmt)
     task_statuses_with_tasks = response.all()
-    logger.info("Response", response=task_statuses_with_tasks)
 
     if len(task_statuses_with_tasks) < len(user_tasks):
         for task in user_tasks:
@@ -160,7 +174,6 @@ async def orm_get_tasks_statuses(
             await session.execute(stmt)
         await session.commit()
 
-        # Re-fetch with join after inserting new records
         stmt = (
             select(TaskStatus, Task)
             .join(Task, TaskStatus.task == Task.id)
@@ -176,7 +189,8 @@ async def orm_get_tasks_statuses(
 async def orm_task_change_status(
     session: AsyncSession,
     task_id: int,
-):
+) -> None:
+    """Toggle completed flag on TaskStatus row by id."""
     stmt = (
         update(TaskStatus)
         .where(TaskStatus.id == task_id)
@@ -190,7 +204,8 @@ async def orm_note_save(
     session: AsyncSession,
     note_text: str,
     day_id: int,
-):
+) -> None:
+    """Create a note for a day."""
     stmt = insert(Note).values(
         day=day_id,
         text=note_text,
@@ -202,7 +217,8 @@ async def orm_note_save(
 async def orm_get_note(
     session: AsyncSession,
     day_id: int,
-):
+) -> Optional[str]:
+    """Return the text of a note for a day or None if not present."""
     stmt = select(Note.text).where(Note.day == day_id)
     response = await session.execute(stmt)
     note = response.scalar()
@@ -212,7 +228,19 @@ async def orm_get_note(
 async def orm_note_remove(
     session: AsyncSession,
     day_id: int,
-):
+) -> None:
+    """Remove a note for a given day."""
     stmt = delete(Note).where(Note.day == day_id)
+    await session.execute(stmt)
+    await session.commit()
+
+
+async def orm_note_change_text(
+    session: AsyncSession,
+    day_id: int,
+    new_text: str,
+) -> None:
+    """Change text of a note."""
+    stmt = update(Note).where(Note.day == day_id).values(text=new_text)
     await session.execute(stmt)
     await session.commit()
