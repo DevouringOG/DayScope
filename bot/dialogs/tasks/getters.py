@@ -23,5 +23,4 @@ async def current_task_getter(dialog_manager: DialogManager, *args, **kwargs):
     dialog_manager.dialog_data.update(
         {"task_title": task.title, "task_value": task.value}
     )
-
-    return {"title": task.title, "value": task.value}
+    return {}
