@@ -12,6 +12,8 @@ from bot.db.models import Base
 
 
 class Task(Base):
+    """Represents a user-defined task with a title and value."""
+
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(
@@ -34,7 +36,7 @@ class Task(Base):
         ForeignKey("users.telegram_id", ondelete="CASCADE"),
     )
 
-    def __repr__(self) -> str:  # pragma: no cover - trivial
+    def __repr__(self) -> str:
         return (
             f"Task(id={self.id!r}, title={self.title!r}, "
             f"value={self.value!r}, user={self.user!r})"
@@ -42,6 +44,8 @@ class Task(Base):
 
 
 class TaskStatus(Base):
+    """Represents the completion status of a Task for a specific Day"""
+
     __tablename__ = "task_status"
 
     id: Mapped[int] = mapped_column(
@@ -66,7 +70,7 @@ class TaskStatus(Base):
 
     __table_args__ = (UniqueConstraint("task", "day", name="task_day_unique"),)
 
-    def __repr__(self) -> str:  # pragma: no cover - trivial
+    def __repr__(self) -> str:
         return (
             f"TaskStatus(id={self.id!r}, task={self.task!r}, "
             f"day={self.day!r}, completed={self.completed!r})"

@@ -17,23 +17,30 @@ from config import Config
 
 
 async def main(config: Config, session_maker: async_sessionmaker) -> None:
-    log = structlog.get_logger(__name__)
-    log.info("INFO")
+    logger = structlog.get_logger(__name__)
 
     bot = Bot(token=config.bot.token.get_secret_value())
+    logger.info("bot.created")
 
     storage = RedisStorage.from_url(
         url=str(config.redis.dsn),
         key_builder=DefaultKeyBuilder(with_destiny=True),
     )
+    logger.info("storage.created")
     dp = Dispatcher(storage=storage)
 
     translator_hub: TranslatorHub = get_translator_hub()
+    logger.info("translator.hub_initialized")
 
     dp.update.middleware(TranslatorRunnerMiddleware(translator_hub))
     dp.update.outer_middleware(DbSessionMiddleware(session_pool=session_maker))
+    logger.info("middlewares.attached")
 
-    dp.include_routers(start_router, *get_dialogs())
+    dialogs = get_dialogs()
+    dp.include_routers(start_router, *dialogs)
+    logger.info("routers.included")
+
     setup_dialogs(dp)
+    logger.info("dialogs.setup_completed")
 
     await dp.start_polling(bot)

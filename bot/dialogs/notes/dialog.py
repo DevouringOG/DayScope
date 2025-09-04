@@ -8,8 +8,8 @@ from bot.dialogs.notes.getters import note_view_getter
 from bot.dialogs.notes.handlers import (
     note_change_text_input_handler,
     note_remove_handler,
+    note_save_handler,
     note_text_input_handler,
-    save_note_handler,
 )
 from bot.dialogs.states import CreateNoteSG, CurrentNoteSG
 
@@ -23,7 +23,7 @@ create_note_dialog = Dialog(
     ),
     Window(
         I18nFormat("confirm-note-text"),
-        Cancel(text=I18nFormat("save"), on_click=save_note_handler),
+        Cancel(text=I18nFormat("save"), on_click=note_save_handler),
         SwitchTo(
             text=I18nFormat("change-note-text"),
             id="change_text",

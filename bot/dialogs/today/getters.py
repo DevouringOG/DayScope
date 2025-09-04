@@ -1,4 +1,3 @@
-import structlog
 from aiogram_dialog import DialogManager
 
 from bot.db.requests import (
@@ -6,25 +5,24 @@ from bot.db.requests import (
     orm_get_tasks_statuses,
     orm_get_today_for_user,
 )
+from bot.utils import get_session
 
-logger = structlog.get_logger(__name__)
 
-
-async def today_task_statuses_list_getter(
+async def today_task_statuses_getter(
     dialog_manager: DialogManager, *args, **kwargs
-):
-    session = dialog_manager.middleware_data["session"]
+):  # Need refactor
+    session = get_session(dialog_manager)
     user_telegram_id = dialog_manager.event.from_user.id
 
     today_id = await orm_get_today_for_user(session, user_telegram_id)
-    dialog_manager.dialog_data["today_id"] = today_id
+    note_text = await orm_get_note(session, today_id)
+    dialog_manager.dialog_data.update(
+        {"today_id": today_id, "note_text": note_text}
+    )
 
     tasks_statuses_with_tasks = await orm_get_tasks_statuses(
         session, today_id, user_telegram_id
     )
-
-    note_text = await orm_get_note(session, today_id)
-    dialog_manager.dialog_data["note_text"] = note_text
 
     ret_data = {
         "tasks": [

@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 class DbSessionMiddleware(BaseMiddleware):
     """
-    Provide SQLAlchemy async session
-    from a session maker to dialog data as 'session'.
+    Open an async SQLAlchemy session and inject it
+    into handler data.
     """
 
     def __init__(self, session_pool: async_sessionmaker):

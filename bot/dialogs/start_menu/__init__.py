@@ -1,1 +1,0 @@
-# Start menu dialog package

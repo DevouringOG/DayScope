@@ -1,14 +1,11 @@
 from datetime import datetime
 from typing import List, Optional, Tuple
 
-import structlog
 from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.db.models import Day, Note, Task, TaskStatus, User
-
-logger = structlog.get_logger(__name__)
 
 
 async def orm_add_user(
@@ -16,8 +13,8 @@ async def orm_add_user(
     telegram_id: int,
     lang: str,
 ) -> bool:
-    """Insert a user if not exists.
-
+    """
+    Insert a user if not exists.
     Returns True if a new user was inserted, False if already existed.
     """
     stmt = (
@@ -149,9 +146,9 @@ async def orm_get_tasks_statuses(
     session: AsyncSession,
     day_id: int,
     user_telegram_id: int,
-) -> List[Tuple[TaskStatus, Task]]:
-    """Return list of (TaskStatus, Task) tuples for the given day.
-
+) -> List[Tuple[TaskStatus, Task]]:  # Need refactor
+    """
+    Return list of (TaskStatus, Task) tuples for the given day.
     If TaskStatus rows are missing for some user tasks, create them.
     """
     stmt = (

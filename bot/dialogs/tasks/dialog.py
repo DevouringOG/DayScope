@@ -24,12 +24,12 @@ from bot.dialogs.tasks.getters import (
     task_list_getter,
 )
 from bot.dialogs.tasks.handlers import (
-    task_button_on_click_handler,
+    task_button_handler,
     task_change_title_handler,
+    task_change_value_handler,
     task_create_handler,
     task_remove_handler,
     task_set_title_handler,
-    task_update_value_handler,
 )
 
 TASK_VALUE_RANGE = range(1, 6)
@@ -46,14 +46,31 @@ def value_buttons_row(handler):
     )
 
 
-view_tasks_dialog = Dialog(
+create_task_dialog = Dialog(
+    Window(
+        I18nFormat("enter-title"),
+        MessageInput(
+            func=task_set_title_handler, content_types=ContentType.TEXT
+        ),
+        Cancel(text=I18nFormat("back")),
+        state=CreateTaskSG.enter_title,
+    ),
+    Window(
+        I18nFormat("enter-value"),
+        value_buttons_row(handler=task_create_handler),
+        Back(text=I18nFormat("back")),
+        state=CreateTaskSG.enter_value,
+    ),
+)
+
+tasks_view_dialog = Dialog(
     Window(
         I18nFormat("tasks-list"),
         ListGroup(
             Button(
                 text=Format("{item[title]}"),
                 id="btn_task",
-                on_click=task_button_on_click_handler,
+                on_click=task_button_handler,
             ),
             id="tasks_list",
             item_id_getter=lambda x: x["id"],
@@ -77,27 +94,10 @@ view_tasks_dialog = Dialog(
     )
 )
 
-create_task_dialog = Dialog(
-    Window(
-        I18nFormat("enter-title"),
-        MessageInput(
-            func=task_set_title_handler, content_types=ContentType.TEXT
-        ),
-        Cancel(text=I18nFormat("back")),
-        state=CreateTaskSG.enter_title,
-    ),
-    Window(
-        I18nFormat("enter-value"),
-        value_buttons_row(handler=task_create_handler),
-        Back(text=I18nFormat("back")),
-        state=CreateTaskSG.enter_value,
-    ),
-)
-
 view_current_task = Dialog(
     Window(
         I18nFormat("task-view"),
-        value_buttons_row(handler=task_update_value_handler),
+        value_buttons_row(handler=task_change_value_handler),
         Row(
             Cancel(text=I18nFormat("back")),
             SwitchTo(
@@ -108,7 +108,7 @@ view_current_task = Dialog(
             SwitchTo(
                 text=I18nFormat("task-change-title"),
                 state=CurrentTaskSG.change_title,
-                id="btn_task_update_title",
+                id="btn_task_change_title",
             ),
         ),
         getter=current_task_getter,

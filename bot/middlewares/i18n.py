@@ -7,8 +7,8 @@ from fluentogram import TranslatorHub
 
 class TranslatorRunnerMiddleware(BaseMiddleware):
     """
-    Middleware that attaches a TranslatorRunner
-    to middleware data as 'i18n'.
+    Middleware that injects a translator
+    into handler data based on the Telegram user's language.
     """
 
     def __init__(self, hub: TranslatorHub):

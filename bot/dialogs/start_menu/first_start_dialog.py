@@ -4,8 +4,6 @@ from aiogram_dialog.widgets.kbd import Start
 from bot.custom_widgets import I18nFormat
 from bot.dialogs.states import CreateTaskSG, StartSG
 
-"""Dialog shown for new users on first start."""
-
 first_start_dialog = Dialog(
     Window(
         I18nFormat("first-start"),

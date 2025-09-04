@@ -26,5 +26,5 @@ class Day(Base):
         UniqueConstraint("user", "date", name="unique_user_date"),
     )
 
-    def __repr__(self) -> str:  # pragma: no cover - trivial
+    def __repr__(self) -> str:
         return f"Day(id={self.id!r}, date={self.date!r}, user={self.user!r})"

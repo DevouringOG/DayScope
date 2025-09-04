@@ -5,7 +5,7 @@ import structlog
 from config import LogsConfig
 
 
-def startup(config: LogsConfig):
+def startup(config: LogsConfig) -> None:
     pre_chain = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,

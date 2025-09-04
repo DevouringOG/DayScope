@@ -20,5 +20,5 @@ class Note(Base):
     )
     text: Mapped[str] = mapped_column(Text)
 
-    def __repr__(self) -> str:  # pragma: no cover - trivial
+    def __repr__(self) -> str:
         return f"Note(id={self.id!r}, day={self.day!r}, text={self.text!r})"

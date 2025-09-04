@@ -1,1 +1,0 @@
-# Tasks dialog package

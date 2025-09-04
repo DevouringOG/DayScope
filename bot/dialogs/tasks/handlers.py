@@ -1,4 +1,3 @@
-import structlog
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, ShowMode, StartMode, SubManager
 from aiogram_dialog.widgets.input import MessageInput
@@ -11,10 +10,7 @@ from bot.db.requests import (
     orm_task_update_value,
 )
 from bot.dialogs.states import CurrentTaskSG, TasksSG
-from bot.utils import get_i18n
-
-logger = structlog.get_logger(__name__)
-
+from bot.utils import get_i18n, get_session
 
 TITLE_LENGTH_RANGE = range(1, 11)
 
@@ -46,7 +42,7 @@ async def task_create_handler(
 ):
     """Validate value and create the task."""
     value = button.widget_id[-1]
-    session = dialog_manager.middleware_data["session"]
+    session = get_session(dialog_manager)
     task_title = dialog_manager.dialog_data.get("task_title", "")
     await orm_add_task(
         session=session,
@@ -62,7 +58,7 @@ async def task_create_handler(
     await dialog_manager.start(TasksSG.view, show_mode=ShowMode.SEND)
 
 
-async def task_button_on_click_handler(
+async def task_button_handler(
     callback: CallbackQuery, button: SwitchTo, dialog_manager: SubManager
 ) -> None:
     """Navigate to the selected task's detailed view."""
@@ -72,11 +68,11 @@ async def task_button_on_click_handler(
     )
 
 
-async def task_update_value_handler(
+async def task_change_value_handler(
     callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ) -> None:
     """Update an existing task's value based on the clicked button."""
-    session = dialog_manager.middleware_data["session"]
+    session = get_session(dialog_manager)
     task_id = dialog_manager.start_data["current_task_id"]
     new_value = int(button.widget_id[-1])
     await orm_task_update_value(session, task_id, new_value)
@@ -99,7 +95,7 @@ async def task_change_title_handler(
         await message.answer(i18n.wrong.habit.title())
         return
 
-    session = dialog_manager.middleware_data["session"]
+    session = get_session(dialog_manager)
     task_id = dialog_manager.start_data.get("current_task_id")
 
     await orm_task_change_title(session, task_id, new_title)
@@ -116,7 +112,7 @@ async def task_remove_handler(
     callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ) -> None:
     """Handle task deletion."""
-    session = dialog_manager.middleware_data["session"]
+    session = get_session(dialog_manager)
     task_id = dialog_manager.start_data.get("current_task_id")
 
     await orm_task_remove(session, task_id)

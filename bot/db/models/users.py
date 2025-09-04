@@ -5,6 +5,8 @@ from bot.db.models import Base
 
 
 class User(Base):
+    """Represents a Telegram user and their basic preferences"""
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(
@@ -25,7 +27,7 @@ class User(Base):
         nullable=False,
     )
 
-    def __repr__(self) -> str:  # pragma: no cover - trivial
+    def __repr__(self) -> str:
         return (
             f"User(id={self.id!r}, telegram_id={self.telegram_id!r}, "
             f"lang={self.lang!r})"
