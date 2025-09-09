@@ -1,47 +1,10 @@
-from datetime import datetime
 from typing import List, Optional, Tuple
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.db.models import Day, Note, Task, TaskStatus, User
-
-
-async def orm_add_user(
-    session: AsyncSession,
-    telegram_id: int,
-    lang: str,
-) -> bool:
-    """
-    Insert a user if not exists.
-    Returns True if a new user was inserted, False if already existed.
-    """
-    stmt = (
-        insert(User)
-        .values(
-            {
-                "telegram_id": telegram_id,
-                "lang": lang,
-            },
-        )
-        .on_conflict_do_nothing(index_elements=["telegram_id"])
-        .returning(User.telegram_id)
-    )
-
-    result = await session.execute(stmt)
-    await session.commit()
-    return result.scalar() is not None
-
-
-async def orm_get_user_by_id(
-    session: AsyncSession,
-    telegram_id: int,
-) -> Optional[User]:
-    """Return a User by telegram_id or None if not found."""
-    stmt = select(User).where(User.telegram_id == telegram_id)
-    response = await session.scalar(stmt)
-    return response
+from bot.db.models import Task, TaskStatus
 
 
 async def orm_add_task(
@@ -115,38 +78,11 @@ async def orm_task_remove(
     await session.commit()
 
 
-async def orm_get_today_for_user(
-    session: AsyncSession,
-    user_telegram_id: int,
-) -> int:
-    """Get or create a Day for today for a user and return its id."""
-    today = datetime.today().date()
-
-    stmt = (
-        insert(Day)
-        .values(
-            date=today,
-            user=user_telegram_id,
-        )
-        .on_conflict_do_update(
-            index_elements=["user", "date"],
-            set_=dict(date=insert(Day).excluded.date),  # No-op update
-        )
-        .returning(Day.id)
-    )
-
-    result = await session.execute(stmt)
-    day_id = result.scalar()
-
-    await session.commit()
-    return day_id
-
-
 async def orm_get_tasks_statuses(
     session: AsyncSession,
     day_id: int,
     user_telegram_id: int,
-) -> List[Tuple[TaskStatus, Task]]:  # Need refactor
+) -> List[Tuple[TaskStatus, Task]]:
     """
     Return list of (TaskStatus, Task) tuples for the given day.
     If TaskStatus rows are missing for some user tasks, create them.
@@ -193,51 +129,5 @@ async def orm_task_change_status(
         .where(TaskStatus.id == task_id)
         .values(completed=~TaskStatus.completed)
     )
-    await session.execute(stmt)
-    await session.commit()
-
-
-async def orm_note_save(
-    session: AsyncSession,
-    note_text: str,
-    day_id: int,
-) -> None:
-    """Create a note for a day."""
-    stmt = insert(Note).values(
-        day=day_id,
-        text=note_text,
-    )
-    await session.execute(stmt)
-    await session.commit()
-
-
-async def orm_get_note(
-    session: AsyncSession,
-    day_id: int,
-) -> Optional[str]:
-    """Return the text of a note for a day or None if not present."""
-    stmt = select(Note.text).where(Note.day == day_id)
-    response = await session.execute(stmt)
-    note = response.scalar()
-    return note
-
-
-async def orm_note_remove(
-    session: AsyncSession,
-    day_id: int,
-) -> None:
-    """Remove a note for a given day."""
-    stmt = delete(Note).where(Note.day == day_id)
-    await session.execute(stmt)
-    await session.commit()
-
-
-async def orm_note_change_text(
-    session: AsyncSession,
-    day_id: int,
-    new_text: str,
-) -> None:
-    """Change text of a note."""
-    stmt = update(Note).where(Note.day == day_id).values(text=new_text)
     await session.execute(stmt)
     await session.commit()
