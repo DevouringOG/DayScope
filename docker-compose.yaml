@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:17.5
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
@@ -12,6 +13,7 @@ services:
 
   redis:
     image: redis:8.2.1
+    container_name: redis
     ports:
       - '6379:6379'
     volumes:
