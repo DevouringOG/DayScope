@@ -1,0 +1,3 @@
+[logging]
+level = "DEBUG"
+timestamp_format = "%Y-%m-%d %H:%M:%S"

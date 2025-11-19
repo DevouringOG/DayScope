@@ -1,0 +1,38 @@
+from aiogram_dialog import DialogManager
+
+from bot.db.requests import (
+    orm_get_note,
+    orm_get_tasks_statuses,
+    orm_get_today_for_user,
+)
+from bot.utils import get_session
+
+
+async def today_task_statuses_getter(
+    dialog_manager: DialogManager, *args, **kwargs
+):  # Need refactor
+    session = get_session(dialog_manager)
+    user_telegram_id = dialog_manager.event.from_user.id
+
+    today_id = await orm_get_today_for_user(session, user_telegram_id)
+    note_text = await orm_get_note(session, today_id)
+    dialog_manager.dialog_data.update(
+        {"today_id": today_id, "note_text": note_text}
+    )
+
+    tasks_statuses_with_tasks = await orm_get_tasks_statuses(
+        session, today_id, user_telegram_id
+    )
+
+    ret_data = {
+        "tasks": [
+            {
+                "task_status_id": str(task_status.id),
+                "title": task.title
+                + (" ✅" if task_status.completed else " ⭕"),
+            }
+            for task_status, task in tasks_statuses_with_tasks
+        ],
+        "note_exists": bool(note_text),
+    }
+    return ret_data

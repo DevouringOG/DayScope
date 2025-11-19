@@ -1,32 +1,46 @@
-import logging
-import asyncio
+import structlog
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.base import DefaultKeyBuilder
+from aiogram.fsm.storage.redis import RedisStorage
 from aiogram_dialog import setup_dialogs
 from fluentogram import TranslatorHub
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from bot.handling.handlers import start_router
-from bot.handling.dialogs import first_start_dialog, create_task_dialog
-from I18N import i18n_factory
-from bot.handling.middlewares import TranslatorRunnerMiddleware
-
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="[{asctime}] #{levelname:8} {filename}:{lineno} - {name} - {message}",
-    style="{",
+from bot.dialogs import get_dialogs
+from bot.dialogs.start_menu.handlers import start_router
+from bot.i18n_factory import get_translator_hub
+from bot.middlewares import (
+    DbSessionMiddleware,
+    TranslatorRunnerMiddleware,
 )
+from config import Config
 
-logger = logging.getLogger(__name__)
 
+async def main(config: Config, session_maker: async_sessionmaker) -> None:
+    logger = structlog.get_logger(__name__)
 
-async def main():
-    bot = Bot(token="8012464002:AAFFN0TGnDYtrPBm1NWDs7MIvLTEkwPD8dA")
-    dp = Dispatcher()
+    bot = Bot(token=config.bot.token.get_secret_value())
+    logger.info("bot.created")
 
-    dp.include_routers(start_router, first_start_dialog, create_task_dialog)
-    setup_dialogs(dp)
+    storage = RedisStorage.from_url(
+        url=str(config.redis.dsn),
+        key_builder=DefaultKeyBuilder(with_destiny=True),
+    )
+    logger.info("storage.created")
+    dp = Dispatcher(storage=storage)
 
-    translator_hub: TranslatorHub = i18n_factory()
+    translator_hub: TranslatorHub = get_translator_hub()
+    logger.info("translator.hub_initialized")
+
     dp.update.middleware(TranslatorRunnerMiddleware(translator_hub))
+    dp.update.outer_middleware(DbSessionMiddleware(session_pool=session_maker))
+    logger.info("middlewares.attached")
+
+    dialogs = get_dialogs()
+    dp.include_routers(start_router, *dialogs)
+    logger.info("routers.included")
+
+    setup_dialogs(dp)
+    logger.info("dialogs.setup_completed")
 
     await dp.start_polling(bot)
